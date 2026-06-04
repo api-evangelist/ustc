@@ -1,0 +1,57 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "ustc": "https://en.ustc.edu.cn/ns#",
+    "@vocab": "https://en.ustc.edu.cn/ns#",
+    "name": "schema:name",
+    "alternateName": "schema:alternateName",
+    "description": "schema:description",
+    "url": "schema:url",
+    "logo": "schema:logo",
+    "foundingDate": "schema:foundingDate",
+    "location": "schema:location",
+    "sameAs": "schema:sameAs",
+    "CollegeOrUniversity": "schema:CollegeOrUniversity",
+    "WebAPI": "schema:WebAPI",
+    "EntryPoint": "schema:EntryPoint",
+    "documentation": "schema:documentation",
+    "humanURL": "schema:url",
+    "baseURL": {
+      "@id": "schema:contentUrl",
+      "@type": "@id"
+    },
+    "api": {
+      "@id": "ustc:api",
+      "@container": "@set"
+    }
+  },
+  "@type": "CollegeOrUniversity",
+  "name": "University of Science and Technology of China",
+  "alternateName": "USTC",
+  "description": "Public research university in Hefei, Anhui, China, founded in 1958 under the Chinese Academy of Sciences.",
+  "url": "https://en.ustc.edu.cn/",
+  "foundingDate": "1958",
+  "location": "Hefei, Anhui, China",
+  "sameAs": [
+    "https://github.com/ustclug",
+    "https://www.linkedin.com/school/university-of-science-and-technology-of-china/"
+  ],
+  "api": [
+    {
+      "@type": "WebAPI",
+      "name": "USTC Open Source Software Mirror",
+      "description": "Open source software mirror operated by LUG @ USTC, consumed over HTTP/HTTPS/rsync package-manager protocols.",
+      "humanURL": "https://mirrors.ustc.edu.cn/help/",
+      "baseURL": "https://mirrors.ustc.edu.cn/",
+      "documentation": "https://mirrors.ustc.edu.cn/help/"
+    },
+    {
+      "@type": "WebAPI",
+      "name": "USTC Unified Identity Authentication (Passport SSO)",
+      "description": "University unified single sign-on / identity authentication service. Gated; no public developer documentation.",
+      "humanURL": "https://passport.ustc.edu.cn/",
+      "baseURL": "https://passport.ustc.edu.cn/"
+    }
+  ]
+}

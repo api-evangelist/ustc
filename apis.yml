@@ -79,6 +79,10 @@ common:
     url: finops/ustc-finops.yml
   - type: Review
     url: review.yml
+  - type: JSONLD
+    url: json-ld/ustc-context.jsonld
+  - type: Blog
+    url: blogs/blogs.json
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
