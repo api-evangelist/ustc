@@ -1,0 +1,26 @@
+generated: '2026-07-11'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: en.ustc.edu.cn
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Aug 17 23:59:59 2026 GMT
+  hsts: false
+- host: mirrors.ustc.edu.cn
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Aug 22 08:05:39 2026 GMT
+  hsts: false
+- host: passport.ustc.edu.cn
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct  5 14:43:29 2026 GMT
+  hsts: null
+domains:
+- domain: ustc.edu.cn
+  dnssec: true
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine

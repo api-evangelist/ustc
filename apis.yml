@@ -61,6 +61,8 @@ apis:
       - type: Authentication
         url: https://passport.ustc.edu.cn/
 common:
+  - type: DomainSecurity
+    url: security/ustc-domain-security.yml
   - type: Website
     url: https://en.ustc.edu.cn/
   - type: GitHub
