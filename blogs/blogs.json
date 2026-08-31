@@ -1,7 +1,15 @@
 {
   "repo": "ustc",
-  "feeds": [],
+  "feeds": [
+    {
+      "source": "https://mirrors.ustc.edu.cn/status/",
+      "feed_url": "https://mirrors.ustc.edu.cn/status/",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
   "post_count": 0,
-  "fetched": "2026-07-04T13:25:52Z",
+  "fetched": "2026-08-30T22:33:40Z",
   "note": "No Blog/BlogRSS/BlogFeed/RSS feed URL in apis.yml; the only Blog entry self-references blogs/blogs.json. No external blog feed to pull."
 }
