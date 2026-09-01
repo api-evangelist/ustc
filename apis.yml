@@ -90,6 +90,12 @@ apis:
   - Identity
   - SSO
   - OpenID Connect
+  - Authentication
+  - CAS
+  tags_raw:
+  - Identity
+  - SSO
+  - OpenID Connect
   - OAuth 2.0
   - CAS
   - Authentication
