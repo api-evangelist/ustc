@@ -73,17 +73,16 @@ apis:
 - aid: ustc:passport
   name: USTC Unified Identity Authentication (id.ustc.edu.cn, formerly Passport SSO)
   description: >-
-    USTC's institution-operated authorization server, run by the Network Information Center and
-    the hub every other campus system authenticates against. It speaks CAS 3.0, OAuth 2.0
-    authorization code (recommended for new integrations) and OpenID Connect 1.0, and publishes
-    an anonymously readable discovery document and JWKS. USTC also publishes a real developer
-    manual for it — endpoint tables, parameter tables, an 8-hour token lifetime, a CSRF warning
-    directing integrators to verify `state`, and mobile SDKs for Android, iOS and HarmonyOS.
-    Access is administrator-granted: a client_id exists only after a registration and filing
-    process, and USTC states explicitly that applications not deployed on campus and not on a
-    ustc.edu.cn domain are not supported. passport.ustc.edu.cn is the legacy hostname, kept for
-    redirects since the February 2025 cutover and resolving to the same address; it still answers
-    CAS validation and the health check but 404s the OIDC discovery path.
+    USTC's institution-operated authorization server, run by the Network Information Center and the hub
+    every other campus system authenticates against. It speaks CAS 3.0, OAuth 2.0 authorization code (recommended
+    for new integrations) and OpenID Connect 1.0, and publishes an anonymously readable discovery document
+    and JWKS. USTC also publishes a real developer manual for it — endpoint tables, parameter tables,
+    an 8-hour token lifetime, a CSRF warning directing integrators to verify `state`, and mobile SDKs
+    for Android, iOS and HarmonyOS. Access is administrator-granted: a client_id exists only after a registration
+    and filing process, and USTC states explicitly that applications not deployed on campus and not on
+    a ustc.edu.cn domain are not supported. passport.ustc.edu.cn is the legacy hostname, kept for redirects
+    since the February 2025 cutover and resolving to the same address; it still answers CAS validation
+    and the health check but 404s the OIDC discovery path.
   humanURL: https://id.ustc.edu.cn/doc/
   baseURL: https://id.ustc.edu.cn/cas
   tags:
@@ -112,67 +111,26 @@ apis:
     url: https://passport.ustc.edu.cn/healthcheck
   x-operator: institution
   x-operator-evidence: >-
-    id.ustc.edu.cn and passport.ustc.edu.cn both resolve to 210.45.67.89, APNIC inetnum
-    210.40.0.0-210.47.255.255, netname CERNET-CN (China Education and Research Network). The
-    discovery document's issuer is https://id.ustc.edu.cn/cas and the developer manual names the
-    USTC Network Information Center as operator. Underlying software is Ruijie RG-SourceID — a
-    product, but one USTC deploys and operates on its own address space, and the contract at the
-    well-known path is served by USTC.
+    id.ustc.edu.cn and passport.ustc.edu.cn both resolve to 210.45.67.89, APNIC inetnum 210.40.0.0-210.47.255.255,
+    netname CERNET-CN (China Education and Research Network). The discovery document's issuer is https://id.ustc.edu.cn/cas
+    and the developer manual names the USTC Network Information Center as operator. Underlying software
+    is Ruijie RG-SourceID — a product, but one USTC deploys and operates on its own address space, and
+    the contract at the well-known path is served by USTC.
   x-access: gated
   x-status: >-
-    200 on /cas/oidc/.well-known/openid-configuration and /cas/oidc/jwks; 401 on
-    /cas/oauth2.0/profile without a token (probed 2026-08-30)
-- aid: ustc:campus-status
-  name: USTC Campus Enrollment Status Query API (在校状态查询接口)
-  description: >-
-    A small, precise, institution-authored REST API that resolves a person's campus enrollment
-    status code by global person identifier or identity number, singly or in batches of up to
-    100. USTC publishes it in prose with a field table, response examples, curl invocations and
-    an enumerated error table that distinguishes a missing token (401) from a valid token off
-    the IP allowlist (403). It requires both an administrator-issued bearer token and a
-    registered source IP, and USTC says outright that it is not for browser users. The health
-    check is public and returns 200. An OpenAPI 3.1 description is DERIVED here from USTC's own
-    documentation; USTC publishes no machine-readable contract itself.
-  humanURL: https://id.ustc.edu.cn/doc/status-api/
-  baseURL: https://id.ustc.edu.cn/doc/api
-  tags:
-  - Identity
-  - Student Records
-  - Enrollment
-  - Gated
-  properties:
-  - type: OpenAPI
-    url: openapi/ustc-campus-status-api-openapi.yml
-  - type: Documentation
-    url: https://id.ustc.edu.cn/doc/status-api/
-  - type: JSONSchema
-    url: json-schema/ustc-campus-status-schemas.json
-  - type: Examples
-    url: examples/ustc-campus-status-examples.yml
-  - type: ErrorCatalog
-    url: errors/ustc-campus-status-errors.yml
-  - type: Authentication
-    url: authentication/ustc-authentication.yml
-  x-operator: institution
-  x-operator-evidence: >-
-    Served from id.ustc.edu.cn, the institution's own host on CERNET address space; documented
-    by the USTC Network Information Center with nic@ustc.edu.cn and wf0229@ustc.edu.cn as
-    contacts. No vendor appears anywhere in the contract, the host or the documentation.
-  x-access: gated
-  x-status: >-
-    200 on /doc/api/health with {"ok":true}; 401 {"detail":"missing or invalid bearer token"} on
-    every business path (probed 2026-08-30)
+    200 on /cas/oidc/.well-known/openid-configuration and /cas/oidc/jwks; 401 on /cas/oauth2.0/profile
+    without a token (probed 2026-08-30)
 - aid: ustc:idp
   name: USTC Shibboleth Identity Provider (跨校资源认证中心)
   description: >-
-    USTC's self-hosted Shibboleth IdP 5.2.2, publishing a 15KB SAML 2.0 EntityDescriptor for
-    entityID https://idp.ustc.edu.cn/idp/shibboleth with a shibmd:Scope of ustc.edu.cn, SSO and
-    SLO endpoints across Redirect, POST and POST-SimpleSign bindings, SOAP artifact resolution
-    and attribute query on port 8443, and twelve certificates. It federates into CARSI, the
-    Chinese Academy of Sciences CSTCloud AAI and eduGAIN, which is how USTC members reach
-    licensed library databases from off campus without a VPN. Institution-operated by definition
-    and confirmed by address ownership — this is not a managed federation platform wearing a
-    university hostname. Anonymously readable; the metadata is archived in this repository.
+    USTC's self-hosted Shibboleth IdP 5.2.2, publishing a 15KB SAML 2.0 EntityDescriptor for entityID
+    https://idp.ustc.edu.cn/idp/shibboleth with a shibmd:Scope of ustc.edu.cn, SSO and SLO endpoints across
+    Redirect, POST and POST-SimpleSign bindings, SOAP artifact resolution and attribute query on port
+    8443, and twelve certificates. It federates into CARSI, the Chinese Academy of Sciences CSTCloud AAI
+    and eduGAIN, which is how USTC members reach licensed library databases from off campus without a
+    VPN. Institution-operated by definition and confirmed by address ownership — this is not a managed
+    federation platform wearing a university hostname. Anonymously readable; the metadata is archived
+    in this repository.
   humanURL: http://ustcnet.ustc.edu.cn/2022/1221/c33557a592151/page.htm
   baseURL: https://idp.ustc.edu.cn/idp/
   tags:
@@ -190,27 +148,26 @@ apis:
   - type: Conformance
     url: conformance/ustc-conformance.yml
   - type: Documentation
-    url: https://lib.ustc.edu.cn/%E7%94%B5%E5%AD%90%E8%B5%84%E6%BA%90/%E6%A0%A1%E5%A4%96%E8%AE%BF%E9%97%AE%E7%94%B5%E5%AD%90%E6%95%B0%E6%8D%AE%E5%BA%93%E8%B5%84%E6%BA%90%E6%8C%87%E5%8D%97/
+    url: >-
+      https://lib.ustc.edu.cn/%E7%94%B5%E5%AD%90%E8%B5%84%E6%BA%90/%E6%A0%A1%E5%A4%96%E8%AE%BF%E9%97%AE%E7%94%B5%E5%AD%90%E6%95%B0%E6%8D%AE%E5%BA%93%E8%B5%84%E6%BA%90%E6%8C%87%E5%8D%97/
   x-operator: institution
   x-operator-evidence: >-
-    idp.ustc.edu.cn resolves directly to 114.214.240.47 — APNIC netname NJR-CERNET, China
-    Education and Research Network Nanjing Regional Network — with no CNAME onto a managed IdP
-    platform. The metadata's Organization block reads "University of Science and Technology of
-    China / 中国科学技术大学" and the Network Information Center names itself as operator on its own
-    service page.
+    idp.ustc.edu.cn resolves directly to 114.214.240.47 — APNIC netname NJR-CERNET, China Education and
+    Research Network Nanjing Regional Network — with no CNAME onto a managed IdP platform. The metadata's
+    Organization block reads "University of Science and Technology of China / 中国科学技术大学" and the Network
+    Information Center names itself as operator on its own service page.
   x-access: public-read
   x-status: 200, application/xml, 15,066 bytes (probed 2026-08-30)
 - aid: ustc:catalog
   name: USTC Course Catalog API (catalog.ustc.edu.cn)
   description: >-
-    The JSON API behind USTC's public course catalog application — semesters, the college tree,
-    program trees, course search, course and lesson detail, exam lists, major lists and public
-    timetables, across eighteen routes under /api/teach/. It is institution-operated and live,
-    but every data route answers 401 to an unauthenticated caller, and the application's own
-    /api/restricted route returns {"restricted":true}, so the catalog is in a declared restricted
-    mode rather than merely unauthenticated. Recorded because a registrar/timetable API is one of
-    the few surface classes a university genuinely runs itself, and because this one is real,
-    routed and USTC's own — not a student project on an outside domain.
+    The JSON API behind USTC's public course catalog application — semesters, the college tree, program
+    trees, course search, course and lesson detail, exam lists, major lists and public timetables, across
+    eighteen routes under /api/teach/. It is institution-operated and live, but every data route answers
+    401 to an unauthenticated caller, and the application's own /api/restricted route returns {"restricted":true},
+    so the catalog is in a declared restricted mode rather than merely unauthenticated. Recorded because
+    a registrar/timetable API is one of the few surface classes a university genuinely runs itself, and
+    because this one is real, routed and USTC's own — not a student project on an outside domain.
   humanURL: https://catalog.ustc.edu.cn/
   baseURL: https://catalog.ustc.edu.cn/api/teach
   tags:
@@ -225,25 +182,24 @@ apis:
     url: authentication/ustc-authentication.yml
   x-operator: institution
   x-operator-evidence: >-
-    catalog.ustc.edu.cn CNAMEs to revproxy.ustc.edu.cn, the university's own reverse proxy, and
-    the application links only to ustc.edu.cn systems — jw.ustc.edu.cn, passport.ustc.edu.cn,
-    mportal.ustc.edu.cn, www.teach.ustc.edu.cn and the library OPAC. The route list was read
-    from the application's own JavaScript bundle; no vendor identity appears in it.
+    catalog.ustc.edu.cn CNAMEs to revproxy.ustc.edu.cn, the university's own reverse proxy, and the application
+    links only to ustc.edu.cn systems — jw.ustc.edu.cn, passport.ustc.edu.cn, mportal.ustc.edu.cn, www.teach.ustc.edu.cn
+    and the library OPAC. The route list was read from the application's own JavaScript bundle; no vendor
+    identity appears in it.
   x-access: gated
   x-status: >-
-    401 on /api/teach/semester/list, /department/college-tree, /program/tree and /course/search;
-    200 {"restricted":true} on /api/restricted (probed 2026-08-30)
+    401 on /api/teach/semester/list, /department/college-tree, /program/tree and /course/search; 200 {"restricted":true}
+    on /api/restricted (probed 2026-08-30)
 - aid: ustc:mirrors
   name: USTC Open Source Software Mirror
   description: >-
-    The USTC Open Source Software Mirror, operated by the campus Linux User Group (LUG @ USTC),
-    is one of the largest open source mirror services among universities in mainland China,
-    carrying Debian, Ubuntu, Fedora, Arch Linux, CentOS and hundreds of other repositories. It is
-    consumed over package-manager protocols — HTTP, HTTPS and rsync — rather than a REST API,
-    with a configuration help site and a server-rendered sync status page. No JSON API is
-    exposed: /api/, /jobs/, /mirrorz.json and the .mirrorz path all refuse or 404. The
-    surrounding tooling is genuinely USTC's own engineering and is open source, including Yuki,
-    the in-house mirror management daemon, and an rsync reverse proxy.
+    The USTC Open Source Software Mirror, operated by the campus Linux User Group (LUG @ USTC), is one
+    of the largest open source mirror services among universities in mainland China, carrying Debian,
+    Ubuntu, Fedora, Arch Linux, CentOS and hundreds of other repositories. It is consumed over package-manager
+    protocols — HTTP, HTTPS and rsync — rather than a REST API, with a configuration help site and a server-rendered
+    sync status page. No JSON API is exposed: /api/, /jobs/, /mirrorz.json and the .mirrorz path all refuse
+    or 404. The surrounding tooling is genuinely USTC's own engineering and is open source, including
+    Yuki, the in-house mirror management daemon, and an rsync reverse proxy.
   humanURL: https://mirrors.ustc.edu.cn/help/
   baseURL: https://mirrors.ustc.edu.cn/
   tags:
@@ -260,20 +216,19 @@ apis:
     url: https://github.com/ustclug
   x-operator: institution
   x-operator-evidence: >-
-    mirrors.ustc.edu.cn resolves to 202.38.95.110 — APNIC inetnum 202.38.64.0-202.38.95.255,
-    netname USTC-CN, registered to "The University of Science and Technology of China,
-    Department of Computer Science, Hefei, Anhui". The institution's own address space.
+    mirrors.ustc.edu.cn resolves to 202.38.95.110 — APNIC inetnum 202.38.64.0-202.38.95.255, netname USTC-CN,
+    registered to "The University of Science and Technology of China, Department of Computer Science,
+    Hefei, Anhui". The institution's own address space.
   x-access: public
   x-status: 200 on /, /help/ and /status/ (probed 2026-08-30)
 - aid: ustc:gitlab
   name: USTC Campus GitLab
   description: >-
-    A GitLab instance USTC runs on its own domain at git.ustc.edu.cn, with a second LUG-operated
-    instance at git.lug.ustc.edu.cn. GitLab exposes a well-documented REST and GraphQL API, but
-    that contract is GitLab's product, not USTC's engineering, so no specification is saved under
-    this institution. The deployment is recorded because it is a real institutional fact and
-    because it is exactly the kind of surface that gets misattributed: a vendor product API
-    answering on a university hostname.
+    A GitLab instance USTC runs on its own domain at git.ustc.edu.cn, with a second LUG-operated instance
+    at git.lug.ustc.edu.cn. GitLab exposes a well-documented REST and GraphQL API, but that contract is
+    GitLab's product, not USTC's engineering, so no specification is saved under this institution. The
+    deployment is recorded because it is a real institutional fact and because it is exactly the kind
+    of surface that gets misattributed: a vendor product API answering on a university hostname.
   humanURL: https://git.ustc.edu.cn/
   baseURL: https://git.ustc.edu.cn/api/v4
   tags:
@@ -285,14 +240,53 @@ apis:
   - type: Website
     url: https://git.ustc.edu.cn/
   x-operator: institution
-  x-operator-evidence: >-
-    Host is under the institution's own registrable domain and USTC operates the deployment.
+  x-operator-evidence: Host is under the institution's own registrable domain and USTC operates the deployment.
   x-contract-operator: vendor
   x-contract-evidence: >-
-    The API contract is GitLab's product API, shared by every GitLab deployment worldwide. It is
-    deliberately not saved here — see GitLab's own profile for the specification.
+    The API contract is GitLab's product API, shared by every GitLab deployment worldwide. It is deliberately
+    not saved here — see GitLab's own profile for the specification.
   x-access: gated
   x-status: 200, redirects to /users/sign_in (probed 2026-08-30)
+- aid: ustc:ustc-health-api
+  name: University of Science and Technology of China Health API
+  description: Unauthenticated liveness check.
+  humanURL: https://id.ustc.edu.cn/doc/
+  baseURL: https://id.ustc.edu.cn/cas
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/ustc-health-api-openapi.yml
+  - type: Documentation
+    url: https://id.ustc.edu.cn/doc/status-api/
+  - type: JSONSchema
+    url: json-schema/ustc-campus-status-schemas.json
+  - type: Examples
+    url: examples/ustc-campus-status-examples.yml
+  - type: ErrorCatalog
+    url: errors/ustc-campus-status-errors.yml
+  - type: Authentication
+    url: authentication/ustc-authentication.yml
+- aid: ustc:ustc-status-api
+  name: University of Science and Technology of China Status API
+  description: Enrollment status lookup by person identifier.
+  humanURL: https://id.ustc.edu.cn/doc/
+  baseURL: https://id.ustc.edu.cn/cas
+  tags:
+  - Status
+  properties:
+  - type: OpenAPI
+    url: openapi/ustc-status-api-openapi.yml
+  - type: Documentation
+    url: https://id.ustc.edu.cn/doc/status-api/
+  - type: JSONSchema
+    url: json-schema/ustc-campus-status-schemas.json
+  - type: Examples
+    url: examples/ustc-campus-status-examples.yml
+  - type: ErrorCatalog
+    url: errors/ustc-campus-status-errors.yml
+  - type: Authentication
+    url: authentication/ustc-authentication.yml
 common:
 - type: Website
   url: https://en.ustc.edu.cn/
