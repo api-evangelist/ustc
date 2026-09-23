@@ -1,0 +1,196 @@
+specification: API Evangelist Authentication Posture
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: probed
+source: >-
+  Live fetches on 2026-08-30, all with a browser User-Agent:
+  https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration (200, application/json, 1271 bytes),
+  https://id.ustc.edu.cn/cas/oidc/jwks (200, application/json, one RS256 RSA key),
+  https://id.ustc.edu.cn/doc/developer/ (200 — USTC's own developer manual for CAS 3.0 / OAuth 2.0 / OIDC 1.0),
+  https://id.ustc.edu.cn/doc/status-api/ (200 — bearer-token + IP-allowlist scheme for the status API),
+  https://id.ustc.edu.cn/cas/oauth2.0/profile (401, {"error":["missing_accessToken"]}),
+  https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529 (401, {"detail":"missing or invalid bearer token"}),
+  https://passport.ustc.edu.cn/serviceValidate (200, CAS 2.0 XML authenticationFailure envelope),
+  https://passport.ustc.edu.cn/healthcheck (200, text/plain "OK"),
+  https://idp.ustc.edu.cn/idp/shibboleth (200, application/xml, 15,066-byte SAML 2.0 EntityDescriptor),
+  https://catalog.ustc.edu.cn/api/teach/semester/list (401),
+  https://catalog.ustc.edu.cn/api/restricted (200, {"restricted":true}).
+description: >-
+  Authentication posture across every University of Science and Technology of China surface
+  reachable from the open internet. The headline result is that USTC's identity layer is the
+  institution's real programmable footprint: USTC's Network Information Center operates its own
+  CAS/OAuth 2.0/OIDC authorization server at id.ustc.edu.cn, publishes a first-party developer
+  manual for it, serves an anonymously readable OpenID Connect discovery document and JWKS, and
+  runs a separate Shibboleth 5.2.2 identity provider at idp.ustc.edu.cn for federated access.
+  Everything that carries data behind that layer — the enrollment status API, the course
+  catalog, the library OPAC, the campus AI assistant — is gated, and USTC states plainly that
+  relying parties outside the ustc.edu.cn domain are not supported at all.
+
+schemes:
+- name: USTC Unified Identity Authentication (OpenID Connect 1.0)
+  type: openIdConnect
+  x-operator: institution
+  issuer: https://id.ustc.edu.cn/cas
+  discovery: https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration
+  jwks_uri: https://id.ustc.edu.cn/cas/oidc/jwks
+  authorization_endpoint: https://id.ustc.edu.cn/cas/oidc/authorize
+  token_endpoint: https://id.ustc.edu.cn/cas/oidc/accessToken
+  userinfo_endpoint: https://id.ustc.edu.cn/cas/oidc/profile
+  introspection_endpoint: https://id.ustc.edu.cn/cas/oidc/introspect
+  revocation_endpoint: https://id.ustc.edu.cn/cas/oidc/revoke
+  registration_endpoint: https://id.ustc.edu.cn/cas/oidc/register
+  end_session_endpoint: https://id.ustc.edu.cn/cas/logout
+  scopes:
+  - openid
+  - profile
+  - email
+  - address
+  - phone
+  - offline_access
+  grant_types:
+  - authorization_code
+  - password
+  - client_credentials
+  - refresh_token
+  response_types:
+  - code
+  - token
+  - id_token token
+  subject_types:
+  - public
+  - pairwise
+  token_signing_algorithms:
+  - none
+  - RS256
+  introspection_auth_methods:
+  - client_secret_basic
+  pkce_advertised: false
+  registration_endpoint_advertised: true
+  registration_endpoint_reachable: false
+  self_service: false
+  onboarding: >-
+    Relying parties are registered by hand. A web application must first complete site
+    registration and filing on USTC's network security platform, then its owner files a
+    统一身份认证接入申请 (SSO integration request); WeChat official accounts, mini-programs and
+    mobile apps are onboarded by emailing wf0229@ustc.edu.cn. The administrator then issues
+    client_id and client_secret. USTC states explicitly that off-campus applications — those not
+    deployed on campus and not on a ustc.edu.cn domain — are NOT supported
+    ("校外应用（不在校内部署、域名不为 ustc.edu.cn）目前不提供对接支持").
+  software: Ruijie RG-SourceID, CAS-compatible (锐捷 RG-SourceID)
+- name: USTC Unified Identity Authentication (OAuth 2.0 authorization code)
+  type: oauth2
+  x-operator: institution
+  flow: authorization_code
+  authorization_endpoint: https://id.ustc.edu.cn/cas/oauth2.0/authorize
+  token_endpoint: https://id.ustc.edu.cn/cas/oauth2.0/accessToken
+  userinfo_endpoint: https://id.ustc.edu.cn/cas/oauth2.0/profile
+  token_type: bearer
+  token_lifetime_seconds: 28800
+  documented_scopes:
+  - gid
+  - email
+  - name
+  documentation: https://id.ustc.edu.cn/doc/developer/
+  detail: >-
+    The protocol USTC recommends for all new integrations. The developer manual documents the
+    full three-legged exchange with parameter tables, an 8-hour access_token lifetime, and an
+    explicit CSRF warning directing integrators to pass and verify `state`. USTC notes that
+    scope is usually not passed because, for CAS compatibility, attribute release is configured
+    per registered application rather than requested per call.
+  evidence: 'GET /cas/oauth2.0/profile without a token returns 401 {"error":["missing_accessToken"]}'
+- name: USTC Unified Identity Authentication (CAS 3.0)
+  type: cas
+  x-operator: institution
+  protocol: https://apereo.github.io/cas/development/protocol/CAS-Protocol-Specification.html
+  login_endpoint: https://id.ustc.edu.cn/cas/login
+  validate_endpoint: https://passport.ustc.edu.cn/serviceValidate
+  detail: >-
+    Retained as a compatibility protocol; USTC recommends OAuth 2.0 for new applications. The
+    CAS ticket validation endpoint answers unauthenticated callers with a well-formed
+    cas:serviceResponse envelope, which is how the protocol was confirmed rather than assumed.
+  evidence: >-
+    GET https://passport.ustc.edu.cn/serviceValidate returns 200 text/plain with
+    <cas:serviceResponse …><cas:authenticationFailure code="INTERNAL_ERROR">ticket或service参数为空
+- name: Shibboleth / SAML 2.0 identity provider
+  type: saml2
+  x-operator: institution
+  entityID: https://idp.ustc.edu.cn/idp/shibboleth
+  metadata: https://idp.ustc.edu.cn/idp/shibboleth
+  scope: ustc.edu.cn
+  software: Shibboleth IdP 5.2.2
+  federations:
+  - CARSI (中国教育科研计算机网统一认证与资源共享基础设施)
+  - CSTCloud AAI (中国科学院科技云认证和授权基础设施)
+  - eduGAIN
+  detail: See identity-federation/ustc-identity-federation.yml
+- name: Administrator-issued bearer token plus source-IP allowlist
+  type: http
+  scheme: bearer
+  x-operator: institution
+  applies_to: https://id.ustc.edu.cn/doc/api/
+  x-additional-control: source IP allowlist
+  detail: >-
+    The enrollment status API requires both a bearer token issued by the administrator and a
+    source IP registered in an allowlist; either alone is refused, with 401 and 403 documented
+    as distinct outcomes. Onboarding requires a system name, a fixed egress IP or range, and a
+    named contact. There is no self-service path.
+  evidence: '401 {"detail":"missing or invalid bearer token"} observed 2026-08-30'
+- name: Session cookie behind unified identity (undocumented)
+  type: apiKey
+  in: cookie
+  x-operator: institution
+  applies_to:
+  - https://catalog.ustc.edu.cn/api/teach/
+  - https://opac.lib.ustc.edu.cn/
+  - https://chat.ustc.edu.cn/
+  detail: >-
+    The course catalog's JSON API, the library OPAC and the campus AI assistant are all real
+    institution-operated surfaces behind the unified identity session. None publishes an
+    authentication contract of its own. The catalog is additionally in a declared restricted
+    mode, and the OPAC refuses off-campus source IPs in prose before any credential is offered.
+  evidence: >-
+    GET https://catalog.ustc.edu.cn/api/teach/semester/list -> 401 (empty body);
+    GET https://catalog.ustc.edu.cn/api/restricted -> 200 {"restricted":true};
+    GET https://opac.lib.ustc.edu.cn/ -> 200 with "您从校外 (…) 访问 …，需要先验证身份才允许继续访问"
+- name: Anonymous read
+  type: none
+  x-operator: institution
+  applies_to:
+  - https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration
+  - https://id.ustc.edu.cn/cas/oidc/jwks
+  - https://id.ustc.edu.cn/doc/api/health
+  - https://passport.ustc.edu.cn/healthcheck
+  - https://idp.ustc.edu.cn/idp/shibboleth
+  - https://mirrors.ustc.edu.cn/
+  detail: >-
+    What USTC does publish openly is protocol metadata, two health checks and a package mirror.
+    All six are institution-operated — mirrors.ustc.edu.cn resolves into 202.38.95.110, inside
+    the APNIC block registered to "The University of Science and Technology of China" itself.
+
+observations:
+- >-
+  USTC advertises the `password` and `client_credentials` grant types and the `token` and
+  `id_token token` response types in its live OIDC discovery document. The implicit-style
+  response types and the resource-owner password grant are both deprecated by OAuth 2.1 and the
+  IETF security BCP. This is what the institution's discovery document currently tells clients
+  is available.
+- >-
+  `id_token_signing_alg_values_supported` includes `none` alongside RS256. An unsigned ID token
+  is accepted at the protocol level by anything that reads this document literally.
+- >-
+  `code_challenge_methods_supported` is absent, so PKCE cannot be discovered by a conformant
+  client even if the server supports it.
+- >-
+  A `registration_endpoint` is advertised at /cas/oidc/register but returns 404 to an
+  unauthenticated GET. Dynamic client registration is announced in metadata and not actually
+  open — the discovery document overstates what an integrator can do.
+- >-
+  There is no route to a client_id for anyone outside the institution. USTC says so directly
+  rather than leaving it to be discovered, which is more honest than most of this cohort.
+- >-
+  passport.ustc.edu.cn and id.ustc.edu.cn resolve to the same address, 210.45.67.89. passport
+  is the legacy hostname kept alive for redirects since the February 2025 cutover; it still
+  answers the CAS validation and healthcheck paths but 404s the OIDC discovery path, so the two
+  names are not interchangeable for integrators.

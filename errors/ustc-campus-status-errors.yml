@@ -1,0 +1,57 @@
+specification: API Evangelist Error Semantics
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+api: ustc:campus-status
+generated: '2026-08-30'
+method: derived
+source: >-
+  https://id.ustc.edu.cn/doc/status-api/ (200, fetched 2026-08-30) — the 错误码 table and error
+  response example published by USTC. The 401 row was additionally confirmed live against
+  https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529, which returned
+  {"detail":"missing or invalid bearer token"}.
+description: >-
+  Error semantics for the USTC campus enrollment status API. Derived from the institution's own
+  documentation, not published by it as machine-readable. Recorded because a documented,
+  enumerated error table with a single consistent envelope is uncommon in this cohort and is
+  exactly what an integrating client needs.
+x-operator: institution
+envelope:
+  media_type: application/json
+  shape: '{"detail": "<message>"}'
+  example: '{"detail": "zjhm not found"}'
+errors:
+- status: 400
+  meaning_zh: 请求参数不符合要求，例如批量查询超过 100 条
+  meaning_en: Malformed request — for example a batch query above the 100-identifier limit.
+  retryable: false
+  caller_action: Split the batch, or contact the data centre for a bulk export.
+- status: 401
+  meaning_zh: 缺少 token 或 token 无效
+  meaning_en: Missing or invalid bearer token.
+  retryable: false
+  observed_live: '2026-08-30 — {"detail":"missing or invalid bearer token"}'
+  caller_action: Obtain a token from the administrator; there is no self-service path.
+- status: 403
+  meaning_zh: token 有效，但来源 IP 不在 allowlist 内
+  meaning_en: Token is valid but the source IP is not on the allowlist.
+  retryable: false
+  caller_action: Register the egress IP or range with the administrator.
+  note: >-
+    Distinguishing 401 from 403 this precisely is good practice and rare — most gated campus
+    surfaces in this cohort collapse both into one status.
+- status: 404
+  meaning_zh: 查询对象不存在
+  meaning_en: No record exists for the requested identifier.
+  retryable: false
+  note: >-
+    Applies to the single-lookup operations. The batch operations do not 404 on a miss; they
+    return the unmatched identifiers in `not_found`, which is the better design of the two.
+- status: 500
+  meaning_zh: 服务内部错误
+  meaning_en: Internal server error.
+  retryable: true
+gaps:
+- No error code vocabulary beyond the HTTP status; `detail` is free text.
+- No Retry-After, rate-limit headers or request identifier is documented.
+- No machine-readable problem type (RFC 9457) is used.

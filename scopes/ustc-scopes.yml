@@ -1,0 +1,83 @@
+specification: API Evangelist Scopes
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: probed
+source: >-
+  https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration (200, fetched 2026-08-30) —
+  `scopes_supported` and `claims_supported` read verbatim from the live discovery document; and
+  https://id.ustc.edu.cn/doc/developer/ (200) — the OAuth 2.0 scope parameter table in USTC's
+  own developer manual.
+description: >-
+  The authorization scopes USTC's unified identity authorization server advertises, and the
+  claims it says it can release. Institution-operated. Scope here governs access to personal
+  attributes of campus members rather than to a data API — this is an identity provider, not a
+  data platform, and the scope list is the only published authorization vocabulary the
+  institution has.
+x-operator: institution
+
+oidc_scopes:
+- name: openid
+  required: true
+  description: Base OpenID Connect scope; requests an ID token.
+- name: profile
+  description: Standard OIDC profile claims.
+- name: email
+  description: email, email_verified.
+- name: address
+  description: Postal address claim.
+- name: phone
+  description: phone_number, phone_number_verified.
+- name: offline_access
+  description: Requests a refresh token.
+
+oauth2_documented_scopes:
+- name: gid
+  description: 人员全局标识 — the campus global person identifier.
+- name: email
+  description: Campus email address.
+- name: name
+  description: Display name.
+note_on_oauth2_scopes: >-
+  USTC's developer manual marks `scope` OPTIONAL and states that in normal use it is not sent:
+  for CAS compatibility, the attribute set released to an application is configured per
+  registered client and returned from the profile endpoint. Authorization is therefore
+  administrator-configured rather than caller-requested — a real property of this deployment,
+  not an omission in the documentation.
+
+claims_supported:
+- sub
+- name
+- preferred_username
+- family_name
+- given_name
+- middle_name
+- profile
+- picture
+- nickname
+- website
+- zoneinfo
+- locale
+- updated_at
+- birthdate
+- email
+- email_verified
+- phone_number
+- phone_number_verified
+- address
+- gender
+
+observations:
+- >-
+  `given_name` appears twice in the live `claims_supported` array. Harmless, but it is a
+  hand-edited configuration artifact rather than a generated one.
+- >-
+  The advertised claim set includes birthdate, gender, phone_number and address — direct
+  personal data about students and staff. Combined with an administrator-configured release
+  policy and no public client registration, the practical control on that data is the manual
+  onboarding process, which USTC documents and restricts to on-campus applications.
+- >-
+  The enrollment status API at /doc/api/ has no scope model at all: a token either carries
+  access or it does not, and the second control is the source-IP allowlist. Its documented
+  design deliberately returns only a status code rather than a person record.

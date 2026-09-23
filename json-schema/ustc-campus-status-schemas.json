@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ustc/main/json-schema/ustc-campus-status-schemas.json",
+  "title": "USTC Campus Enrollment Status API schemas",
+  "description": "Request and response schemas for the USTC 在校状态查询接口, derived from the University of Science and Technology of China Network Information Center's own published documentation at https://id.ustc.edu.cn/doc/status-api/. Derived by API Evangelist; not published by USTC.",
+  "x-provenance": {
+    "generated": "2026-08-30",
+    "method": "derived",
+    "source": "https://id.ustc.edu.cn/doc/status-api/ (HTTP 200, fetched 2026-08-30); health response corroborated live at https://id.ustc.edu.cn/doc/api/health (HTTP 200, {\"ok\":true})",
+    "x-operator": "institution",
+    "derived_from": "openapi/_original/ustc-campus-status-api-openapi.yml"
+  },
+  "$defs": {
+    "Health": {
+      "type": "object",
+      "required": ["ok"],
+      "properties": {
+        "ok": { "type": "boolean", "description": "True when the service is up." }
+      }
+    },
+    "StatusItem": {
+      "type": "object",
+      "description": "One identity and its enrollment status code.",
+      "required": ["zjhm", "ryzxztdm"],
+      "properties": {
+        "zjhm": { "type": "string", "description": "身份标识 — identity number, globally unique." },
+        "ryzxztdm": { "type": "string", "description": "人员在校状态代码 — enrollment status code, returned verbatim from the source system. USTC does not publish the code list." }
+      }
+    },
+    "GidResult": {
+      "type": "object",
+      "required": ["gid", "items"],
+      "properties": {
+        "gid": { "type": "string", "description": "人员全局标识 — global person identifier. One gid may map to several zjhm." },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/StatusItem" } }
+      }
+    },
+    "ZjhmResult": {
+      "type": "object",
+      "required": ["gid", "zjhm", "ryzxztdm"],
+      "properties": {
+        "gid": { "type": "string" },
+        "zjhm": { "type": "string" },
+        "ryzxztdm": { "type": "string" }
+      }
+    },
+    "GidBatchRequest": {
+      "type": "object",
+      "required": ["gids"],
+      "properties": {
+        "gids": { "type": "array", "maxItems": 100, "items": { "type": "string" } }
+      }
+    },
+    "ZjhmBatchRequest": {
+      "type": "object",
+      "required": ["zjhms"],
+      "properties": {
+        "zjhms": { "type": "array", "maxItems": 100, "items": { "type": "string" } }
+      }
+    },
+    "GidBatchResult": {
+      "type": "object",
+      "required": ["items", "not_found"],
+      "properties": {
+        "items": { "type": "array", "items": { "$ref": "#/$defs/GidResult" } },
+        "not_found": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ZjhmBatchResult": {
+      "type": "object",
+      "required": ["items", "not_found"],
+      "properties": {
+        "items": { "type": "array", "items": { "$ref": "#/$defs/ZjhmResult" } },
+        "not_found": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": ["detail"],
+      "properties": {
+        "detail": { "type": "string" }
+      }
+    }
+  }
+}

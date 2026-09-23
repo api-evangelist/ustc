@@ -1,0 +1,74 @@
+specification: API Evangelist Vocabulary
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: derived
+source: >-
+  https://id.ustc.edu.cn/doc/status-api/ (200) and https://id.ustc.edu.cn/doc/developer/ (200),
+  fetched 2026-08-30; plus the live OIDC discovery document
+  https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration (200) and the SAML metadata
+  https://idp.ustc.edu.cn/idp/shibboleth (200).
+description: >-
+  The person-identity vocabulary USTC's campus systems actually use. It matters because it is
+  institution-specific and appears nowhere in any standard: an integrator meeting `gid`, `zjhm`
+  and `ryzxztdm` for the first time has only USTC's own prose to go on, and the status code list
+  behind `ryzxztdm` is not published at all. Recorded so the vocabulary is at least legible;
+  nothing here is invented, and terms USTC does not define are marked undefined rather than
+  guessed.
+x-operator: institution
+terms:
+- term: gid
+  zh: 人员全局标识
+  en: Global person identifier
+  type: string
+  cardinality: one gid may correspond to several zjhm
+  definition_source: https://id.ustc.edu.cn/doc/status-api/
+  note: >-
+    Also an OAuth 2.0 scope name in the developer manual's scope table (`gid email name`), which
+    makes it the campus identifier an integrating application asks for.
+- term: zjhm
+  zh: 身份标识
+  en: Identity number
+  type: string
+  cardinality: globally unique
+  definition_source: https://id.ustc.edu.cn/doc/status-api/
+- term: ryzxztdm
+  zh: 人员在校状态代码
+  en: Person enrollment status code
+  type: string
+  definition_source: https://id.ustc.edu.cn/doc/status-api/
+  value_list: not published
+  note: >-
+    USTC documents this field as returned verbatim from the source system
+    ("接口按源数据原样返回") and publishes no code list. The one example value in the documentation is
+    "10". A caller cannot interpret the response without a separate agreement with the data
+    centre — the most consequential gap in an otherwise well-documented interface.
+- term: not_found
+  en: Unmatched identifiers in a batch response
+  type: array of string
+  definition_source: https://id.ustc.edu.cn/doc/status-api/
+  note: Batch operations report misses here instead of failing the request.
+- term: detail
+  en: Error message
+  type: string
+  definition_source: https://id.ustc.edu.cn/doc/status-api/
+  note: The only field in the error envelope; free text, no error code vocabulary.
+standard_vocabularies_in_use:
+- name: OpenID Connect standard claims
+  where: https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration
+  terms: [sub, name, preferred_username, family_name, given_name, middle_name, profile, picture,
+          nickname, website, zoneinfo, locale, updated_at, birthdate, email, email_verified,
+          phone_number, phone_number_verified, address, gender]
+- name: SAML 2.0 metadata / Shibboleth metadata extensions
+  where: https://idp.ustc.edu.cn/idp/shibboleth
+  terms: [EntityDescriptor, IDPSSODescriptor, AttributeAuthorityDescriptor, 'shibmd:Scope',
+          SingleSignOnService, SingleLogoutService, ArtifactResolutionService, AttributeService]
+- name: CAS protocol
+  where: https://passport.ustc.edu.cn/serviceValidate
+  terms: ['cas:serviceResponse', 'cas:authenticationFailure', ticket, service]
+gaps:
+- The ryzxztdm code list is not published.
+- No JSON-LD, SKOS or other machine-readable vocabulary is published by USTC for any of these terms.
+- The course catalog's own vocabulary (lesson, program tree, course-substitute pool, college tree)
+  is visible in route names only; every route that would return it answers 401.

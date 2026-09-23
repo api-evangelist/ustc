@@ -1,0 +1,64 @@
+openapi: 3.2.0
+info:
+  title: USTC Campus Enrollment Status Query Health API
+  version: '2026-08-30'
+  summary: 在校状态查询接口 — person-level enrollment status lookup for authorized USTC systems.
+  description: The 在校状态查询接口 ("campus enrollment status query interface") published by the University of Science and Technology of China Network Information Center (中国科学技术大学网络信息中心).
+  contact:
+    name: USTC Network Information Center (中国科学技术大学网络信息中心)
+    email: nic@ustc.edu.cn
+    url: https://id.ustc.edu.cn/doc/status-api/
+  x-operator: institution
+  x-operator-evidence: id.ustc.edu.cn resolves to 210.45.67.89 (APNIC inetnum 210.40.0.0-210.47.255.255, netname CERNET-CN, China Education and Research Network); documentation is served from the institution's own host under the ustc.edu.cn registrable domain and names the USTC Network Information Center as operator.
+  x-provenance:
+    generated: '2026-08-30'
+    method: derived
+    source: https://id.ustc.edu.cn/doc/status-api/ (HTTP 200, fetched 2026-08-30) — USTC's own published prose specification, field table, response examples, error-code table and curl examples. Corroborated by live probes of https://id.ustc.edu.cn/doc/api/health (200, application/json, {"ok":true}) and https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529 (401, application/json, {"detail":"missing or invalid bearer token"}).
+    derived_by: API Evangelist university pipeline
+    note: Derived, not published by the provider. Every schema, example and error below is transcribed from USTC's documentation; nothing is inferred beyond it. Field semantics for `ryzxztdm` are deliberately left open because USTC documents the code as returned verbatim from source data ("接口按源数据原样返回") and does not publish the code list.
+servers:
+- url: https://id.ustc.edu.cn/doc/api
+  description: Production. Documented base path 'https://id.ustc.edu.cn/doc/api/'.
+security:
+- bearerToken: []
+tags:
+- name: Health
+  description: Unauthenticated liveness check.
+paths:
+  /health:
+    get:
+      tags:
+      - Health
+      operationId: getHealth
+      summary: Health check
+      description: Liveness check. The only documented operation that does not require authentication ("除健康检查外，业务接口均需要鉴权"). Verified live 2026-08-30.
+      security: []
+      responses:
+        '200':
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              examples:
+                documented:
+                  summary: USTC's documented example, matched byte-for-byte by a live probe
+                  value:
+                    ok: true
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+      - ok
+      properties:
+        ok:
+          type: boolean
+          description: True when the service is up.
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      description: 'Administrator-issued token, sent as `Authorization: Bearer <token>`. USTC additionally enforces a source-IP allowlist registered at onboarding; both conditions must hold. To be onboarded a caller supplies a system name, a fixed egress IP or IP range, and a contact, to wf0229@ustc.edu.cn. Tokens must not be placed in front-end code, public repositories or logs.'
+      x-additional-control: source IP allowlist
+      x-self-service: false

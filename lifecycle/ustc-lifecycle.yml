@@ -1,0 +1,88 @@
+specification: API Evangelist Lifecycle
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: derived
+source: >-
+  https://id.ustc.edu.cn/doc/notice/ (200, 27,504 bytes, fetched 2026-08-30) and
+  https://id.ustc.edu.cn/doc/security/ (200, 19,626 bytes) — the dated change and security
+  notices USTC's Network Information Center publishes for its unified identity authentication
+  system. Transcribed and translated by API Evangelist; USTC publishes them as prose, not as a
+  machine-readable changelog.
+description: >-
+  The USTC unified identity authentication system is the one surface in this profile with a
+  real, dated, publicly readable change history addressed to developers as well as to users.
+  It runs to eight entries over four years and includes breaking changes announced ahead of
+  time, a hostname migration with a redirect, a protocol deprecation citing an RFC by number,
+  and a security fix credited to the student who reported it.
+x-operator: institution
+applies_to:
+- ustc:passport
+- ustc:campus-status
+changelog_url: https://id.ustc.edu.cn/doc/notice/
+security_notices_url: https://id.ustc.edu.cn/doc/security/
+machine_readable: false
+entries:
+- date: '2025-08-12'
+  type: release
+  summary: >-
+    Online upgrade on 13 Aug 2025 with no service interruption. Added canary-test components,
+    took over GID functions from the electronic registration centre, and fixed a horizontal
+    privilege-escalation vulnerability — credited to the reporting student (SA23 杨旭).
+- date: '2025-07-09'
+  type: deferral
+  summary: >-
+    WeChat QR sign-in left testing without a general release; full rollout deferred to autumn
+    2025 because of legacy encoding inconsistencies in campus person data.
+- date: '2025-03-26'
+  type: feature
+  summary: WeChat sign-in update shipped without downtime; existing bindings had to be re-linked.
+- date: '2025-02-10'
+  type: breaking
+  summary: >-
+    New unified identity authentication system in trial operation from 11 Feb 2025. New hostname
+    id.ustc.edu.cn, with passport.ustc.edu.cn redirecting automatically. For developers, this
+    release added OAuth 2.0 and OIDC 1.0 alongside CAS, published Android, iOS and HarmonyOS
+    SDKs, and added a campus-identity check that returns no identifier. For users it added TOTP,
+    passkeys, delegated account permissions and a security centre. TLS 1.0 and 1.1 support was
+    removed in the same release.
+  developer_impact: >-
+    The migration is the reason both hostnames still answer. They are not interchangeable: the
+    OIDC discovery path exists only on id.ustc.edu.cn and 404s on passport.ustc.edu.cn.
+- date: '2024-12-11'
+  type: deprecation
+  summary: >-
+    TLS 1.0 and 1.1 removed, citing RFC 8996, with TLS 1.3 added. The notice gave application
+    administrators a curl-based test procedure against the /healthcheck endpoint.
+  source: https://id.ustc.edu.cn/doc/security/
+- date: '2024-01-17'
+  type: access_change
+  summary: Second wave of business systems closed to departed staff and alumni, 19 Jan 2024.
+- date: '2023-11-15'
+  type: breaking
+  summary: >-
+    Unregistered applications began receiving a "service 无效" error — service registration became
+    mandatory. Departed members lost access to WebVPN, the cross-campus resource authentication
+    centre and some electronic journals.
+- date: '2023-10-31'
+  type: access_change
+  summary: >-
+    First wave announced for 15 Nov 2023, naming the affected systems explicitly:
+    https://wvpn.ustc.edu.cn, https://idp.ustc.edu.cn and https://*.lib.ustc.edu.cn.
+- date: '2022-07-20'
+  type: policy
+  summary: >-
+    Weak-password accounts temporarily disabled under the PRC Data Security Law until the
+    password is changed.
+observations:
+- >-
+  Deprecations are announced with a date, a reason and a test procedure. That is better
+  deprecation practice than most commercial API providers in the catalog, let alone universities.
+- >-
+  None of it is machine-readable. There is no feed, no Deprecation or Sunset header, and no
+  version identifier an integrating client could pin to — the history is a documentation page a
+  human has to read.
+- >-
+  Nothing comparable exists for the other USTC surfaces. The course catalog, the library OPAC
+  and the campus AI assistant publish no change history at all.

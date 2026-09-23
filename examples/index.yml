@@ -1,0 +1,33 @@
+specification: API Evangelist Examples Index
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: probed
+source: >-
+  Live fetches from id.ustc.edu.cn on 2026-08-30, plus USTC's own published documentation at
+  https://id.ustc.edu.cn/doc/status-api/.
+description: What each file in this directory is, and who wrote it.
+files:
+- file: ustc-campus-status-examples.yml
+  method: derived
+  x-operator: institution
+  detail: >-
+    Request/response examples for the enrollment status API, transcribed from USTC's own
+    documentation. The health-check and 401 payloads were also observed live.
+- file: ustc-openid-configuration-example.json
+  method: searched
+  x-operator: institution
+  source: https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration
+  status: 200
+  detail: >-
+    USTC's own OpenID Connect discovery document, fetched verbatim on 2026-08-30. This is the
+    institution's document, not ours — only the JSON indentation was normalised.
+- file: ustc-jwks-example.json
+  method: searched
+  x-operator: institution
+  source: https://id.ustc.edu.cn/cas/oidc/jwks
+  status: 200
+  detail: >-
+    USTC's live JSON Web Key Set — a single RSA signing key. Public key material only; nothing
+    here is secret and nothing was obtained with credentials.

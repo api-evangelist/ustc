@@ -1,0 +1,361 @@
+openapi: 3.1.0
+info:
+  title: USTC Campus Enrollment Status Query API
+  version: '2026-08-30'
+  summary: 在校状态查询接口 — person-level enrollment status lookup for authorized USTC systems.
+  description: >-
+    The 在校状态查询接口 ("campus enrollment status query interface") published by the
+    University of Science and Technology of China Network Information Center
+    (中国科学技术大学网络信息中心). It lets an authorized campus system resolve a person's
+    enrollment/affiliation status code (`ryzxztdm`) by global person identifier (`gid`) or by
+    identity number (`zjhm`), singly or in batches of up to 100.
+
+    OPERATOR: institution. The service, the host `id.ustc.edu.cn`, the documentation and the
+    data are all USTC's; it is not a vendor product running under a university hostname. The
+    host resolves to 210.45.67.89 inside the CERNET allocation, and the documentation is
+    published by the Network Information Center at https://id.ustc.edu.cn/doc/status-api/ with
+    nic@ustc.edu.cn / wf0229@ustc.edu.cn as the contacts.
+
+    PROVENANCE: this document was DERIVED by API Evangelist from USTC's own published
+    documentation page, not obtained from USTC and not published by USTC. USTC publishes the
+    interface in prose and curl examples; it publishes no OpenAPI. The unauthenticated health
+    check was probed live and returned HTTP 200 `{"ok":true}`; every business path returned a
+    documented HTTP 401 `{"detail":"missing or invalid bearer token"}` to an unauthenticated,
+    non-allowlisted caller. No credential was used, guessed, or requested.
+
+    ACCESS: gated. USTC states the interface is available only to systems it has onboarded
+    ("接口仅面向已开通的系统调用，不面向浏览器用户开放") and requires BOTH a bearer token issued by
+    the administrator AND a source IP registered in an allowlist. There is no self-service
+    signup and no public developer program.
+  contact:
+    name: USTC Network Information Center (中国科学技术大学网络信息中心)
+    email: nic@ustc.edu.cn
+    url: https://id.ustc.edu.cn/doc/status-api/
+  x-operator: institution
+  x-operator-evidence: >-
+    id.ustc.edu.cn resolves to 210.45.67.89 (APNIC inetnum 210.40.0.0-210.47.255.255,
+    netname CERNET-CN, China Education and Research Network); documentation is served from the
+    institution's own host under the ustc.edu.cn registrable domain and names the USTC Network
+    Information Center as operator.
+  x-provenance:
+    generated: '2026-08-30'
+    method: derived
+    source: >-
+      https://id.ustc.edu.cn/doc/status-api/ (HTTP 200, fetched 2026-08-30) — USTC's own
+      published prose specification, field table, response examples, error-code table and curl
+      examples. Corroborated by live probes of https://id.ustc.edu.cn/doc/api/health (200,
+      application/json, {"ok":true}) and https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529
+      (401, application/json, {"detail":"missing or invalid bearer token"}).
+    derived_by: API Evangelist university pipeline
+    note: >-
+      Derived, not published by the provider. Every schema, example and error below is
+      transcribed from USTC's documentation; nothing is inferred beyond it. Field semantics for
+      `ryzxztdm` are deliberately left open because USTC documents the code as returned
+      verbatim from source data ("接口按源数据原样返回") and does not publish the code list.
+servers:
+  - url: https://id.ustc.edu.cn/doc/api
+    description: Production. Documented base path 'https://id.ustc.edu.cn/doc/api/'.
+security:
+  - bearerToken: []
+tags:
+  - name: Health
+    description: Unauthenticated liveness check.
+  - name: Status
+    description: Enrollment status lookup by person identifier.
+paths:
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Health check
+      description: >-
+        Liveness check. The only documented operation that does not require authentication
+        ("除健康检查外，业务接口均需要鉴权"). Verified live 2026-08-30.
+      security: []
+      responses:
+        '200':
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              examples:
+                documented:
+                  summary: USTC's documented example, matched byte-for-byte by a live probe
+                  value:
+                    ok: true
+  /status/by-gid/{gid}:
+    get:
+      tags: [Status]
+      operationId: getStatusByGid
+      summary: Query enrollment status by gid
+      description: >-
+        Resolve the enrollment status codes attached to a global person identifier. A single
+        `gid` may map to more than one identity, so `items` is an array.
+      parameters:
+        - name: gid
+          in: path
+          required: true
+          description: 人员全局标识 — global person identifier. One gid may correspond to several zjhm.
+          schema:
+            type: string
+          example: '2200600958'
+      responses:
+        '200':
+          description: Status records for the gid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GidResult'
+              examples:
+                documented:
+                  value:
+                    gid: '2200600958'
+                    items:
+                      - zjhm: P0529
+                        ryzxztdm: '10'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /status/by-zjhm/{zjhm}:
+    get:
+      tags: [Status]
+      operationId: getStatusByZjhm
+      summary: Query enrollment status by zjhm
+      description: Resolve the enrollment status code for a single identity number. `zjhm` is globally unique.
+      parameters:
+        - name: zjhm
+          in: path
+          required: true
+          description: 身份标识 — identity number. Globally unique.
+          schema:
+            type: string
+          example: P0529
+      responses:
+        '200':
+          description: Status record for the zjhm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZjhmResult'
+              examples:
+                documented:
+                  value:
+                    gid: '2200600958'
+                    zjhm: P0529
+                    ryzxztdm: '10'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /status/by-gids:
+    post:
+      tags: [Status]
+      operationId: batchStatusByGid
+      summary: Batch query enrollment status by gid
+      description: >-
+        Resolve up to 100 gids in one call. Identifiers with no record are returned in
+        `not_found` rather than failing the request. USTC directs requests above 100 to the
+        data centre for a bulk export instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GidBatchRequest'
+            examples:
+              documented:
+                value:
+                  gids: ['2200600958']
+      responses:
+        '200':
+          description: Batch result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GidBatchResult'
+              examples:
+                documented:
+                  value:
+                    items:
+                      - gid: '2200600958'
+                        items:
+                          - zjhm: P0529
+                            ryzxztdm: '10'
+                    not_found: []
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /status/by-zjhms:
+    post:
+      tags: [Status]
+      operationId: batchStatusByZjhm
+      summary: Batch query enrollment status by zjhm
+      description: Resolve up to 100 identity numbers in one call.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZjhmBatchRequest'
+            examples:
+              documented:
+                value:
+                  zjhms: ['P0529']
+      responses:
+        '200':
+          description: Batch result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZjhmBatchResult'
+              examples:
+                documented:
+                  value:
+                    items:
+                      - gid: '2200600958'
+                        zjhm: P0529
+                        ryzxztdm: '10'
+                    not_found: []
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+components:
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      description: >-
+        Administrator-issued token, sent as `Authorization: Bearer <token>`. USTC additionally
+        enforces a source-IP allowlist registered at onboarding; both conditions must hold. To
+        be onboarded a caller supplies a system name, a fixed egress IP or IP range, and a
+        contact, to wf0229@ustc.edu.cn. Tokens must not be placed in front-end code, public
+        repositories or logs.
+      x-additional-control: source IP allowlist
+      x-self-service: false
+  schemas:
+    Health:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+          description: True when the service is up.
+    StatusItem:
+      type: object
+      description: One identity and its enrollment status code.
+      required: [zjhm, ryzxztdm]
+      properties:
+        zjhm:
+          type: string
+          description: 身份标识 — identity number, globally unique.
+        ryzxztdm:
+          type: string
+          description: >-
+            人员在校状态代码 — person enrollment status code, returned verbatim from the source
+            system. USTC does not publish the code list.
+    GidResult:
+      type: object
+      required: [gid, items]
+      properties:
+        gid:
+          type: string
+          description: 人员全局标识 — global person identifier.
+        items:
+          type: array
+          description: One entry per identity attached to this gid.
+          items:
+            $ref: '#/components/schemas/StatusItem'
+    ZjhmResult:
+      type: object
+      required: [gid, zjhm, ryzxztdm]
+      properties:
+        gid: { type: string }
+        zjhm: { type: string }
+        ryzxztdm: { type: string }
+    GidBatchRequest:
+      type: object
+      required: [gids]
+      properties:
+        gids:
+          type: array
+          maxItems: 100
+          description: Up to 100 global person identifiers.
+          items: { type: string }
+    ZjhmBatchRequest:
+      type: object
+      required: [zjhms]
+      properties:
+        zjhms:
+          type: array
+          maxItems: 100
+          description: Up to 100 identity numbers.
+          items: { type: string }
+    GidBatchResult:
+      type: object
+      required: [items, not_found]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GidResult'
+        not_found:
+          type: array
+          description: Requested gids with no matching record.
+          items: { type: string }
+    ZjhmBatchResult:
+      type: object
+      required: [items, not_found]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZjhmResult'
+        not_found:
+          type: array
+          items: { type: string }
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message.
+  responses:
+    BadRequest:
+      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: 缺少 token 或 token 无效 — missing or invalid bearer token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            probed:
+              summary: Observed live 2026-08-30 against /status/by-zjhm/P0529
+              value:
+                detail: missing or invalid bearer token
+    Forbidden:
+      description: token 有效，但来源 IP 不在 allowlist 内 — valid token from an unregistered source IP.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: 查询对象不存在 — no record for the requested identifier.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            documented:
+              value:
+                detail: zjhm not found
+    ServerError:
+      description: 服务内部错误 — internal server error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

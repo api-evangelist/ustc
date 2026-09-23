@@ -1,0 +1,124 @@
+specification: API Evangelist Domain Standard Conformance
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+regime: education
+generated: '2026-08-30'
+method: probed
+source: >-
+  https://idp.ustc.edu.cn/idp/shibboleth (200, application/xml, 15,066 bytes — SAML 2.0
+  EntityDescriptor, archived at identity-federation/ustc-idp-saml-metadata.xml);
+  https://idp.ustc.edu.cn/idp/ (200, "USTC Shibboleth IdP v5.2.2");
+  http://ustcnet.ustc.edu.cn/2022/1221/c33557a592151/page.htm (200 — the Network Information
+  Center naming Shibboleth and the three federations it joins); plus negative probes recorded
+  below. All fetched 2026-08-30.
+description: >-
+  Conformance against the Kin Score `education` regime standards list (scim, lti, oneroster,
+  ed-fi, caliper, qti, oai-pmh, shibboleth, saml, orcid, datacite, crossref). Reward-only: a
+  standard is recorded only where an INSTITUTION-OPERATED contract demonstrates it, at a named
+  location in a document that was actually fetched. Two of the twelve are met. The other ten
+  were probed and are recorded as not evidenced rather than left blank, because for this cohort
+  the absence is the more common and more useful measurement.
+
+conforms:
+- standard: saml
+  name: SAML 2.0
+  status: conformant
+  x-operator: institution
+  confidence: high
+  evidence:
+    url: https://idp.ustc.edu.cn/idp/shibboleth
+    status: 200
+    content_type: application/xml
+    entity: https://idp.ustc.edu.cn/idp/shibboleth
+    locations:
+    - 'EntityDescriptor[@entityID="https://idp.ustc.edu.cn/idp/shibboleth"]/IDPSSODescriptor[@protocolSupportEnumeration contains "urn:oasis:names:tc:SAML:2.0:protocol"]'
+    - 'IDPSSODescriptor/SingleSignOnService[@Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"]/@Location = https://idp.ustc.edu.cn/idp/profile/SAML2/Redirect/SSO'
+    - 'IDPSSODescriptor/SingleLogoutService[@Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"]'
+    - 'AttributeAuthorityDescriptor/AttributeService[@Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"]'
+    - 'Organization/OrganizationName = University of Science and Technology of China'
+    corroboration:
+      resolved_ip: 114.214.240.47
+      ip_owner: NJR-CERNET — China Education and Research Network, Nanjing Regional Network (APNIC)
+      cname: none — the hostname resolves directly, with no managed-IdP platform in front of it
+      local_copy: identity-federation/ustc-idp-saml-metadata.xml
+  note: >-
+    A self-hosted SAML 2.0 identity provider publishing its own per-entity metadata on the
+    institution's own address space. The one blemish is that the stock Shibboleth "example
+    metadata only" comment header was never removed; the metadata below it is genuine.
+
+- standard: shibboleth
+  name: Shibboleth
+  status: conformant
+  x-operator: institution
+  confidence: high
+  evidence:
+    url: https://idp.ustc.edu.cn/idp/
+    status: 200
+    locations:
+    - 'HTTP response title: "USTC Shibboleth IdP v5.2.2"'
+    - 'EntityDescriptor/IDPSSODescriptor/Extensions/shibmd:Scope = ustc.edu.cn'
+    - 'IDPSSODescriptor/SingleSignOnService[@Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest"]'
+    - 'protocolSupportEnumeration contains urn:mace:shibboleth:1.0'
+    corroboration:
+      url: http://ustcnet.ustc.edu.cn/2022/1221/c33557a592151/page.htm
+      status: 200
+      quote: >-
+        网络信息中心基于我校统一身份认证系统和开源的联盟认证解决方案 Shibboleth 提供的一项使用统一身份认证访问校外授权资源的服务
+      federations: [CARSI, CSTCloud AAI, eduGAIN]
+  note: >-
+    Shibboleth is named by the operator, evidenced in the running software version, and carried
+    in the metadata's own Shibboleth-namespace extensions and 1.0 profile endpoints.
+
+not_evidenced:
+- standard: oai-pmh
+  probes:
+  - {url: 'https://lib.ustc.edu.cn/oai?verb=Identify', status: 404}
+  - {url: 'http://lib.ustc.edu.cn/oai', status: 404}
+  - {url: 'https://ir.lib.ustc.edu.cn/', status: 0, note: host does not resolve}
+  note: >-
+    No institution-operated OAI-PMH endpoint was found. USTC does not appear to run a public
+    institutional repository under its own domain; ir.ustc.edu.cn resolves to a CMS portal
+    template, not a repository.
+- standard: scim
+  note: >-
+    Not advertised. The unified identity system exposes OIDC and CAS for authentication and a
+    bespoke bearer-token status API for person data; there is no SCIM provisioning endpoint in
+    the discovery document or the developer manual.
+- standard: lti
+  note: No LTI tool-platform registration surface was found on any ustc.edu.cn host.
+- standard: oneroster
+  note: Not evidenced.
+- standard: ed-fi
+  note: Not evidenced.
+- standard: caliper
+  note: Not evidenced.
+- standard: qti
+  note: Not evidenced.
+- standard: orcid
+  note: >-
+    No institution-operated ORCID integration surface was reachable. USTC researchers hold
+    ORCIDs, but that is a fact about people, not an institutional contract.
+- standard: datacite
+  note: Not evidenced — no institution-operated DOI minting or metadata surface was found.
+- standard: crossref
+  note: Not evidenced.
+
+adjacent_standards_met:
+- name: OpenID Connect 1.0 Discovery
+  evidence: {url: 'https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration', status: 200}
+  note: >-
+    Not on the education regime list, but recorded because it is a genuine machine-readable
+    contract the institution publishes at a well-known location.
+- name: JSON Web Key Set (RFC 7517)
+  evidence: {url: 'https://id.ustc.edu.cn/cas/oidc/jwks', status: 200}
+- name: CAS Protocol 3.0
+  evidence: {url: 'https://passport.ustc.edu.cn/serviceValidate', status: 200}
+  note: Confirmed by a well-formed cas:serviceResponse envelope, and named in USTC's developer manual.
+- name: OAuth 2.0 authorization code (RFC 6749)
+  evidence: {url: 'https://id.ustc.edu.cn/doc/developer/', status: 200}
+- name: RFC 8996 (deprecating TLS 1.0/1.1)
+  evidence: {url: 'https://id.ustc.edu.cn/doc/security/', status: 200}
+  note: >-
+    USTC published a dated deprecation notice citing RFC 8996 by number and gave integrators a
+    curl-based test procedure. Rare in this cohort and worth recording.

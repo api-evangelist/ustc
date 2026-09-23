@@ -1,0 +1,114 @@
+specification: API Evangelist Identity Federation
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+generated: '2026-08-30'
+method: probed
+source: >-
+  Live fetch of https://idp.ustc.edu.cn/idp/shibboleth on 2026-08-30 (HTTP 200,
+  application/xml, 15,066 bytes, a SAML 2.0 EntityDescriptor), archived here as
+  ustc-idp-saml-metadata.xml; https://idp.ustc.edu.cn/idp/ (200, "USTC Shibboleth IdP v5.2.2");
+  the Network Information Center's own service page
+  http://ustcnet.ustc.edu.cn/2022/1221/c33557a592151/page.htm (200, 跨校资源认证中心); the library's
+  off-campus access guide https://lib.ustc.edu.cn/电子资源/校外访问电子数据库资源指南/; and APNIC whois
+  on the resolved address.
+description: >-
+  USTC's SAML 2.0 identity federation surface, and the strongest machine-readable contract the
+  institution publishes. Unlike most of this cohort, the operator question resolves cleanly to
+  the institution: idp.ustc.edu.cn is not a CNAME onto a managed federation platform, it
+  resolves directly to 114.214.240.47 inside CERNET address space, it runs a self-hosted
+  Shibboleth IdP 5.2.2, and the university's own Network Information Center names itself as the
+  operator on its public service page. The metadata carries a shibmd:Scope of ustc.edu.cn and an
+  Organization block in both English and Chinese naming the University of Science and Technology
+  of China.
+
+  This is the surface class the university pipeline exists to find: institution-operated by
+  definition, machine-readable, standards-based, and absent from the June 2026 profile of this
+  repository entirely.
+
+federations:
+- name: CARSI
+  full_name: 中国教育科研计算机网统一认证与资源共享基础设施 — CERNET Authentication and Resource Sharing Infrastructure
+  role: member identity provider
+  interfederation: eduGAIN
+  chooser_entry: 'China CERNET Federation / CARSI -> University of Science and Technology of China / 中国科学技术大学'
+- name: CSTCloud AAI
+  full_name: 中国科学院科技云认证和授权基础设施 — Chinese Academy of Sciences Science and Technology Cloud AAI
+  role: member identity provider
+  note: >-
+    USTC is administered under the Chinese Academy of Sciences, which is why it federates into
+    the CAS science cloud as well as the national education federation.
+- name: eduGAIN
+  role: member via CARSI interfederation
+  note: Reached through CARSI rather than by direct registration.
+
+identity_provider:
+  entityID: https://idp.ustc.edu.cn/idp/shibboleth
+  x-operator: institution
+  operator_basis: >-
+    idp.ustc.edu.cn resolves directly to 114.214.240.47 — APNIC inetnum 114.214.0.0/16,
+    netname NJR-CERNET, "China Education and Research Network, Nanjing Regional Network", the
+    regional academic allocation USTC sits under — with no CNAME onto a managed IdP platform and
+    no commercial CDN in front of it. The metadata's Organization block names the university in
+    both languages and points at https://www.ustc.edu.cn. The service page at ustcnet.ustc.edu.cn
+    states the Network Information Center built the service on the university's own unified
+    identity system plus open-source Shibboleth.
+  software: Shibboleth IdP 5.2.2
+  scope: ustc.edu.cn
+  organization:
+    name: University of Science and Technology of China
+    display_name_zh: 中国科学技术大学
+    urls:
+    - https://en.ustc.edu.cn
+    - https://www.ustc.edu.cn
+  protocols_supported:
+  - urn:oasis:names:tc:SAML:2.0:protocol
+  - urn:oasis:names:tc:SAML:1.1:protocol
+  - urn:mace:shibboleth:1.0
+  endpoints:
+    single_sign_on:
+    - binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect
+      location: https://idp.ustc.edu.cn/idp/profile/SAML2/Redirect/SSO
+    - binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
+      location: https://idp.ustc.edu.cn/idp/profile/SAML2/POST/SSO
+    - binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign
+      location: https://idp.ustc.edu.cn/idp/profile/SAML2/POST-SimpleSign/SSO
+    - binding: urn:mace:shibboleth:1.0:profiles:AuthnRequest
+      location: https://idp.ustc.edu.cn/idp/profile/Shibboleth/SSO
+    single_logout:
+    - https://idp.ustc.edu.cn/idp/profile/SAML2/Redirect/SLO
+    - https://idp.ustc.edu.cn/idp/profile/SAML2/POST/SLO
+    - https://idp.ustc.edu.cn/idp/profile/SAML2/POST-SimpleSign/SLO
+    - https://idp.ustc.edu.cn:8443/idp/profile/SAML2/SOAP/SLO
+    artifact_resolution:
+    - https://idp.ustc.edu.cn:8443/idp/profile/SAML2/SOAP/ArtifactResolution
+    - https://idp.ustc.edu.cn:8443/idp/profile/SAML1/SOAP/ArtifactResolution
+    attribute_query:
+    - https://idp.ustc.edu.cn:8443/idp/profile/SAML2/SOAP/AttributeQuery
+    - https://idp.ustc.edu.cn:8443/idp/profile/SAML1/SOAP/AttributeQuery
+  key_descriptors: 12 X509Certificate elements (signing, encryption, back-channel)
+  local_copy: identity-federation/ustc-idp-saml-metadata.xml
+  probed: '2026-08-30'
+  status: 200
+
+purpose: >-
+  The service exists so that USTC members can reach licensed external resources — library
+  databases and electronic journals — from off campus without a VPN, by asserting institutional
+  identity to the resource provider. USTC's library documents both the WAYFless link pattern,
+  where the IdP entity is embedded in the URL, and the manual path, where a reader picks
+  "China CERNET Federation" or "CARSI" and then the university in a discovery service.
+
+caveats:
+- >-
+  The metadata document opens with the stock Shibboleth "This is example metadata only" comment
+  block that ships with the distribution. It has NOT been edited out. The metadata underneath it
+  is nonetheless genuine and specific to USTC — real entityID, real scope, real organization
+  block, twelve real certificates — so the boilerplate is a housekeeping defect in what the
+  institution publishes, not evidence that the entity is a template.
+- >-
+  https://idp.ustc.edu.cn/idp/profile/Metadata/SAML, the other conventional per-entity metadata
+  path, returns a CARSI-branded error page rather than metadata. Integrators must use
+  /idp/shibboleth.
+- >-
+  Since 15 November 2023 USTC has excluded departed staff and alumni from this service, along
+  with WebVPN and some electronic journals. Federation access is scoped to current members.

@@ -1,0 +1,104 @@
+specification: API Evangelist Examples
+specificationVersion: '0.1'
+provider: University of Science and Technology of China
+providerId: ustc
+api: ustc:campus-status
+generated: '2026-08-30'
+method: derived
+source: >-
+  https://id.ustc.edu.cn/doc/status-api/ (200, fetched 2026-08-30) — request and response
+  examples transcribed from USTC's own documentation, including its curl invocations. The
+  health-check and 401 examples were additionally observed live on the same date.
+description: >-
+  Worked examples for the USTC campus enrollment status API. Every payload here is USTC's own
+  published example or a response actually observed from the live host. The identifiers
+  (gid 2200600958, zjhm P0529) are USTC's documentation placeholders, not real people.
+x-operator: institution
+examples:
+- name: Health check (unauthenticated)
+  operation: getHealth
+  request:
+    method: GET
+    url: https://id.ustc.edu.cn/doc/api/health
+  response:
+    status: 200
+    body: {ok: true}
+  observed_live: '2026-08-30'
+- name: Unauthenticated call to a business endpoint
+  operation: getStatusByZjhm
+  request:
+    method: GET
+    url: https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529
+  response:
+    status: 401
+    body: {detail: missing or invalid bearer token}
+  observed_live: '2026-08-30'
+- name: Query by zjhm
+  operation: getStatusByZjhm
+  request:
+    method: GET
+    url: https://id.ustc.edu.cn/doc/api/status/by-zjhm/P0529
+    headers:
+      Authorization: 'Bearer <token>'
+  response:
+    status: 200
+    body: {gid: '2200600958', zjhm: P0529, ryzxztdm: '10'}
+- name: Query by gid
+  operation: getStatusByGid
+  request:
+    method: GET
+    url: https://id.ustc.edu.cn/doc/api/status/by-gid/2200600958
+    headers:
+      Authorization: 'Bearer <token>'
+  response:
+    status: 200
+    body:
+      gid: '2200600958'
+      items:
+      - {zjhm: P0529, ryzxztdm: '10'}
+- name: Batch query by gid
+  operation: batchStatusByGid
+  request:
+    method: POST
+    url: https://id.ustc.edu.cn/doc/api/status/by-gids
+    headers:
+      Authorization: 'Bearer <token>'
+      Content-Type: application/json
+    body:
+      gids: ['2200600958', '2200600959']
+  response:
+    status: 200
+    body:
+      items:
+      - gid: '2200600958'
+        items:
+        - {zjhm: P0529, ryzxztdm: '10'}
+      not_found: []
+- name: Batch query by zjhm
+  operation: batchStatusByZjhm
+  request:
+    method: POST
+    url: https://id.ustc.edu.cn/doc/api/status/by-zjhms
+    headers:
+      Authorization: 'Bearer <token>'
+      Content-Type: application/json
+    body:
+      zjhms: ['P0529', 'P0530']
+  response:
+    status: 200
+    body:
+      items:
+      - {gid: '2200600958', zjhm: P0529, ryzxztdm: '10'}
+      not_found: []
+- name: OpenID Connect discovery (unauthenticated, different surface)
+  operation: n/a
+  request:
+    method: GET
+    url: https://id.ustc.edu.cn/cas/oidc/.well-known/openid-configuration
+  response:
+    status: 200
+    body_excerpt:
+      issuer: https://id.ustc.edu.cn/cas
+      token_endpoint: https://id.ustc.edu.cn/cas/oidc/accessToken
+      jwks_uri: https://id.ustc.edu.cn/cas/oidc/jwks
+  observed_live: '2026-08-30'
