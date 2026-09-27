@@ -182,47 +182,15 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 components:
-  responses:
-    ServerError:
-      description: 服务内部错误 — internal server error.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Forbidden:
-      description: token 有效，但来源 IP 不在 allowlist 内 — valid token from an unregistered source IP.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: 查询对象不存在 — no record for the requested identifier.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            documented:
-              value:
-                detail: zjhm not found
-    Unauthorized:
-      description: 缺少 token 或 token 无效 — missing or invalid bearer token.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            probed:
-              summary: Observed live 2026-08-30 against /status/by-zjhm/P0529
-              value:
-                detail: missing or invalid bearer token
   schemas:
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message.
     ZjhmBatchRequest:
       type: object
       required:
@@ -232,59 +200,6 @@ components:
           type: array
           maxItems: 100
           description: Up to 100 identity numbers.
-          items:
-            type: string
-    GidResult:
-      type: object
-      required:
-      - gid
-      - items
-      properties:
-        gid:
-          type: string
-          description: 人员全局标识 — global person identifier.
-        items:
-          type: array
-          description: One entry per identity attached to this gid.
-          items:
-            $ref: '#/components/schemas/StatusItem'
-    GidBatchResult:
-      type: object
-      required:
-      - items
-      - not_found
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/GidResult'
-        not_found:
-          type: array
-          description: Requested gids with no matching record.
-          items:
-            type: string
-    ZjhmResult:
-      type: object
-      required:
-      - gid
-      - zjhm
-      - ryzxztdm
-      properties:
-        gid:
-          type: string
-        zjhm:
-          type: string
-        ryzxztdm:
-          type: string
-    GidBatchRequest:
-      type: object
-      required:
-      - gids
-      properties:
-        gids:
-          type: array
-          maxItems: 100
-          description: Up to 100 global person identifiers.
           items:
             type: string
     StatusItem:
@@ -300,14 +215,59 @@ components:
         ryzxztdm:
           type: string
           description: 人员在校状态代码 — person enrollment status code, returned verbatim from the source system. USTC does not publish the code list.
-    Error:
+    GidBatchResult:
       type: object
       required:
-      - detail
+      - items
+      - not_found
       properties:
-        detail:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GidResult'
+        not_found:
+          type: array
+          description: Requested gids with no matching record.
+          items:
+            type: string
+    GidBatchRequest:
+      type: object
+      required:
+      - gids
+      properties:
+        gids:
+          type: array
+          maxItems: 100
+          description: Up to 100 global person identifiers.
+          items:
+            type: string
+    ZjhmResult:
+      type: object
+      required:
+      - gid
+      - zjhm
+      - ryzxztdm
+      properties:
+        gid:
           type: string
-          description: Human-readable error message.
+        zjhm:
+          type: string
+        ryzxztdm:
+          type: string
+    GidResult:
+      type: object
+      required:
+      - gid
+      - items
+      properties:
+        gid:
+          type: string
+          description: 人员全局标识 — global person identifier.
+        items:
+          type: array
+          description: One entry per identity attached to this gid.
+          items:
+            $ref: '#/components/schemas/StatusItem'
     ZjhmBatchResult:
       type: object
       required:
@@ -322,6 +282,46 @@ components:
           type: array
           items:
             type: string
+  responses:
+    NotFound:
+      description: 查询对象不存在 — no record for the requested identifier.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            documented:
+              value:
+                detail: zjhm not found
+    Forbidden:
+      description: token 有效，但来源 IP 不在 allowlist 内 — valid token from an unregistered source IP.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 缺少 token 或 token 无效 — missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            probed:
+              summary: Observed live 2026-08-30 against /status/by-zjhm/P0529
+              value:
+                detail: missing or invalid bearer token
+    BadRequest:
+      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: 服务内部错误 — internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     bearerToken:
       type: http
