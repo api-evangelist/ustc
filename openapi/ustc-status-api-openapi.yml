@@ -191,6 +191,33 @@ components:
         detail:
           type: string
           description: Human-readable error message.
+    ZjhmResult:
+      type: object
+      required:
+      - gid
+      - zjhm
+      - ryzxztdm
+      properties:
+        gid:
+          type: string
+        zjhm:
+          type: string
+        ryzxztdm:
+          type: string
+    ZjhmBatchResult:
+      type: object
+      required:
+      - items
+      - not_found
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZjhmResult'
+        not_found:
+          type: array
+          items:
+            type: string
     ZjhmBatchRequest:
       type: object
       required:
@@ -202,19 +229,6 @@ components:
           description: Up to 100 identity numbers.
           items:
             type: string
-    StatusItem:
-      type: object
-      description: One identity and its enrollment status code.
-      required:
-      - zjhm
-      - ryzxztdm
-      properties:
-        zjhm:
-          type: string
-          description: 身份标识 — identity number, globally unique.
-        ryzxztdm:
-          type: string
-          description: 人员在校状态代码 — person enrollment status code, returned verbatim from the source system. USTC does not publish the code list.
     GidBatchResult:
       type: object
       required:
@@ -230,30 +244,6 @@ components:
           description: Requested gids with no matching record.
           items:
             type: string
-    GidBatchRequest:
-      type: object
-      required:
-      - gids
-      properties:
-        gids:
-          type: array
-          maxItems: 100
-          description: Up to 100 global person identifiers.
-          items:
-            type: string
-    ZjhmResult:
-      type: object
-      required:
-      - gid
-      - zjhm
-      - ryzxztdm
-      properties:
-        gid:
-          type: string
-        zjhm:
-          type: string
-        ryzxztdm:
-          type: string
     GidResult:
       type: object
       required:
@@ -268,21 +258,43 @@ components:
           description: One entry per identity attached to this gid.
           items:
             $ref: '#/components/schemas/StatusItem'
-    ZjhmBatchResult:
+    GidBatchRequest:
       type: object
       required:
-      - items
-      - not_found
+      - gids
       properties:
-        items:
+        gids:
           type: array
-          items:
-            $ref: '#/components/schemas/ZjhmResult'
-        not_found:
-          type: array
+          maxItems: 100
+          description: Up to 100 global person identifiers.
           items:
             type: string
+    StatusItem:
+      type: object
+      description: One identity and its enrollment status code.
+      required:
+      - zjhm
+      - ryzxztdm
+      properties:
+        zjhm:
+          type: string
+          description: 身份标识 — identity number, globally unique.
+        ryzxztdm:
+          type: string
+          description: 人员在校状态代码 — person enrollment status code, returned verbatim from the source system. USTC does not publish the code list.
   responses:
+    BadRequest:
+      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: 服务内部错误 — internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: 查询对象不存在 — no record for the requested identifier.
       content:
@@ -310,18 +322,6 @@ components:
               summary: Observed live 2026-08-30 against /status/by-zjhm/P0529
               value:
                 detail: missing or invalid bearer token
-    BadRequest:
-      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ServerError:
-      description: 服务内部错误 — internal server error.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     bearerToken:
       type: http
