@@ -183,22 +183,12 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   responses:
-    BadRequest:
-      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
+    Forbidden:
+      description: token 有效，但来源 IP 不在 allowlist 内 — valid token from an unregistered source IP.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: 查询对象不存在 — no record for the requested identifier.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            documented:
-              value:
-                detail: zjhm not found
     Unauthorized:
       description: 缺少 token 或 token 无效 — missing or invalid bearer token.
       content:
@@ -216,59 +206,23 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Forbidden:
-      description: token 有效，但来源 IP 不在 allowlist 内 — valid token from an unregistered source IP.
+    BadRequest:
+      description: 请求参数不符合要求 — malformed request, e.g. a batch over 100 identifiers.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 查询对象不存在 — no record for the requested identifier.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            documented:
+              value:
+                detail: zjhm not found
   schemas:
-    GidResult:
-      type: object
-      required:
-      - gid
-      - items
-      properties:
-        gid:
-          type: string
-          description: 人员全局标识 — global person identifier.
-        items:
-          type: array
-          description: One entry per identity attached to this gid.
-          items:
-            $ref: '#/components/schemas/StatusItem'
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          type: string
-          description: Human-readable error message.
-    GidBatchRequest:
-      type: object
-      required:
-      - gids
-      properties:
-        gids:
-          type: array
-          maxItems: 100
-          description: Up to 100 global person identifiers.
-          items:
-            type: string
-    ZjhmResult:
-      type: object
-      required:
-      - gid
-      - zjhm
-      - ryzxztdm
-      properties:
-        gid:
-          type: string
-        zjhm:
-          type: string
-        ryzxztdm:
-          type: string
     ZjhmBatchResult:
       type: object
       required:
@@ -283,6 +237,39 @@ components:
           type: array
           items:
             type: string
+    GidResult:
+      type: object
+      required:
+      - gid
+      - items
+      properties:
+        gid:
+          type: string
+          description: 人员全局标识 — global person identifier.
+        items:
+          type: array
+          description: One entry per identity attached to this gid.
+          items:
+            $ref: '#/components/schemas/StatusItem'
+    GidBatchRequest:
+      type: object
+      required:
+      - gids
+      properties:
+        gids:
+          type: array
+          maxItems: 100
+          description: Up to 100 global person identifiers.
+          items:
+            type: string
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message.
     ZjhmBatchRequest:
       type: object
       required:
@@ -307,6 +294,19 @@ components:
         ryzxztdm:
           type: string
           description: 人员在校状态代码 — person enrollment status code, returned verbatim from the source system. USTC does not publish the code list.
+    ZjhmResult:
+      type: object
+      required:
+      - gid
+      - zjhm
+      - ryzxztdm
+      properties:
+        gid:
+          type: string
+        zjhm:
+          type: string
+        ryzxztdm:
+          type: string
     GidBatchResult:
       type: object
       required:
