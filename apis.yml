@@ -245,6 +245,11 @@ apis:
   humanURL: https://git.ustc.edu.cn/
   baseURL: https://git.ustc.edu.cn/api/v4
   tags:
+  - Version Control
+  - GitLab
+  - Developer Tooling
+  - Gated
+  tags_raw:
   - Source Control
   - GitLab
   - Developer Tooling
